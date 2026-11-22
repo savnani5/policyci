@@ -3,6 +3,7 @@ name = "policyci"
 version = "0.1.0"
 description = "CI for robot policies — regression diff, perturbation sweeps, deploy gate on LeRobot/LIBERO"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
     "typer>=0.12",
