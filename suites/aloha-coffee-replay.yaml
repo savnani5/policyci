@@ -1,0 +1,37 @@
+version: 1
+name: aloha-coffee-replay
+
+runner:
+  type: ros2_replay
+  adapter: policyci.examples.aloha_replay.adapter:AlohaReplayAdapter
+
+execution:
+  readiness_timeout_s: 15
+  playback_discovery_delay_s: 5
+  playback_timeout_s: 90
+
+gate:
+  metric: within_tolerance
+  mode: require_value
+  expect: true
+  min_valid_repeats: 1
+
+cases:
+  - id: aloha_coffee_replay
+    bag: ../examples/aloha_replay/fixtures/aloha_coffee_episode_000000.mcap
+    judge:
+      sample_rate_hz: 50.0
+      gripper_tolerance: 0.051004
+      arm_tolerance: 1.0e-9
+    repeats: 1
+    required_topics:
+      - /episode/cam_high/image/compressed
+      - /episode/cam_left_wrist/image/compressed
+      - /episode/cam_right_wrist/image/compressed
+      - /episode/joint_states
+      - /episode/reference_action
+      - /episode/task
+    playback_topics:
+      - /episode/reference_action
+    capture_topics:
+      - /policy/action

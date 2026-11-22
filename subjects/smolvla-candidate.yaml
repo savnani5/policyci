@@ -1,0 +1,5 @@
+id: smolvla-candidate-action-chunk-4
+checkpoint: HuggingFaceVLA/smolvla_libero
+config:
+  n_action_steps: 4
+  batch_size: 1

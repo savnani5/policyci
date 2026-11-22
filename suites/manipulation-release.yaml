@@ -1,0 +1,22 @@
+version: 1
+name: manipulation-release
+
+runner:
+  type: libero
+  suite: libero_object
+
+execution:
+  episodes: 5
+  seeds: [1000, 1001, 1002, 1003, 1004]
+
+gate:
+  metric: success_rate
+  mode: max_drop
+  max_drop_pp: 10
+  min_valid_episodes: 5
+
+cases:
+  - id: soup_to_basket
+    task: 0
+  - id: alphabet_soup_to_basket
+    task: 1

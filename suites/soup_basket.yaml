@@ -1,0 +1,25 @@
+# Flat suite example — scenarios only; gate optional (CLI can override).
+# Format: env + episodes + seed + optional gate + a flat list of tests.
+
+description: soup basket smoke
+
+env: libero_object
+episodes: 2
+seed: 1000
+
+gate:
+  threshold_pp: 10
+  min_episodes: 2
+
+tests:
+  # Nominal
+  - task: 0
+
+  # Instruction stress
+  - task: 0
+    instruction: "grab the soup can and put it into the basket"
+
+  # Pose stress
+  - task: 0
+    pose_cm: 4.0
+    level: 2

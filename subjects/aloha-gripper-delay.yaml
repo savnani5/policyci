@@ -1,0 +1,3 @@
+id: aloha-gripper-delay-300ms
+config:
+  gripper_delay_messages: 15

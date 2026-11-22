@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RoboLens — {{ result.check_id }}</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #13171c;
+      --line: #2a3139;
+      --text: #edf2f7;
+      --muted: #93a1b1;
+      --pass: #39d98a;
+      --block: #ff6673;
+      --warn: #f4bd50;
+      --accent: #71b7ff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 32px auto 72px; }
+    h1, h2 { margin: 0; letter-spacing: -0.025em; }
+    h1 { font-size: clamp(28px, 4vw, 46px); }
+    h2 { margin-top: 36px; font-size: 18px; }
+    .eyebrow, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .eyebrow { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+    .decision { margin: 22px 0 8px; padding: 18px 20px; border: 1px solid var(--line); background: var(--panel); }
+    .decision strong { font: 700 20px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .decision.pass strong { color: var(--pass); }
+    .decision.block strong { color: var(--block); }
+    .decision.no_verdict strong { color: var(--warn); }
+    .summary { color: var(--muted); margin: 6px 0 0; }
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--line); padding: 14px 16px; }
+    .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .09em; }
+    .value { margin-top: 5px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: var(--panel); }
+    th, td { padding: 11px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+    .status-regressed { color: var(--block); }
+    .status-fixed { color: var(--accent); }
+    .status-not_evaluated { color: var(--warn); }
+    .pairs { display: grid; gap: 16px; margin-top: 12px; }
+    .pair { border: 1px solid var(--line); background: var(--panel); }
+    .pair-head { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    .media-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .side { padding: 12px; min-width: 0; }
+    .side + .side { border-left: 1px solid var(--line); }
+    video { width: 100%; display: block; margin-top: 8px; background: #000; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    .empty { color: var(--muted); padding: 12px 0; }
+    @media (max-width: 720px) {
+      .media-grid { grid-template-columns: 1fr; }
+      .side + .side { border-left: 0; border-top: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">RoboLens release evidence</div>
+  <h1>{{ result.suite_name }}</h1>
+
+  <section class="decision {{ result.gate.verdict.value }}">
+    <strong>{{ result.gate.verdict.value | upper }}</strong>
+    <p class="summary">{{ result.gate.summary }}</p>
+  </section>
+
+  <section class="meta">
+    <div class="card"><div class="label">Baseline</div><div class="value mono">{{ result.baseline.id }}</div></div>
+    <div class="card"><div class="label">Candidate</div><div class="value mono">{{ result.candidate.id }}</div></div>
+    <div class="card"><div class="label">Runner</div><div class="value mono">{{ result.runner }}</div></div>
+    <div class="card"><div class="label">Suite version</div><div class="value mono">{{ suite_version }}</div></div>
+    <div class="card"><div class="label">Gate rule</div><div class="value mono">{{ gate_rule }}</div></div>
+  </section>
+
+  <h2>Declared subject differences</h2>
+  {% if subject_diff %}
+  <table>
+    <thead><tr><th>Field</th><th>Baseline</th><th>Candidate</th></tr></thead>
+    <tbody>
+      {% for row in subject_diff %}
+      <tr><td class="mono">{{ row.field }}</td><td>{{ row.baseline }}</td><td>{{ row.candidate }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No declared subject differences.</p>
+  {% endif %}
+
+  <h2>Protected cases</h2>
+  <table>
+    <thead><tr><th>Case</th><th>Status</th><th>Validity (B / C)</th><th>Metric</th><th>Judge</th><th>Baseline</th><th>Candidate</th><th>Delta</th><th>Reason</th></tr></thead>
+    <tbody>
+      {% for row in comparisons %}
+      <tr>
+        <td class="mono">{{ row.case_id }}{% if not row.required %} (optional){% endif %}</td>
+        <td class="status-{{ row.status }} mono">{{ row.status }}</td>
+        <td class="mono">{{ row.baseline_validity }} / {{ row.candidate_validity }}</td>
+        <td class="mono">{{ row.metric }}</td>
+        <td class="mono">{{ row.judge }}</td>
+        <td>{{ row.baseline_value }}</td><td>{{ row.candidate_value }}</td><td>{{ row.delta }}</td><td>{{ row.reason }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Paired evidence</h2>
+  {% if pairs %}
+  <div class="pairs">
+    {% for pair in pairs %}
+    <article class="pair">
+      <div class="pair-head"><span class="mono">{{ pair.case_id }} / {{ pair.unit_id }}</span><span class="status-{{ pair.status }} mono">{{ pair.status }}</span></div>
+      <div class="media-grid">
+        <div class="side">
+          <div class="label">Baseline</div>
+          {% for artifact in pair.baseline %}
+            {% if artifact.kind == "video" %}<video controls preload="metadata" src="{{ artifact.src }}"></video>{% else %}<a href="{{ artifact.src }}">{{ artifact.kind }}</a>{% endif %}
+          {% else %}<div class="empty">No baseline artifact.</div>{% endfor %}
+        </div>
+        <div class="side">
+          <div class="label">Candidate</div>
+          {% for artifact in pair.candidate %}
+            {% if artifact.kind == "video" %}<video controls preload="metadata" src="{{ artifact.src }}"></video>{% else %}<a href="{{ artifact.src }}">{{ artifact.kind }}</a>{% endif %}
+          {% else %}<div class="empty">No candidate artifact.</div>{% endfor %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">No comparable evidence pairs were produced.</p>
+  {% endif %}
+</main>
+</body>
+</html>

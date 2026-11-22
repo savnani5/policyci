@@ -1,0 +1,5 @@
+id: twist-stop-regression
+config:
+  gain: 1.0
+  bias: 0.4
+  bias_after_messages: 7

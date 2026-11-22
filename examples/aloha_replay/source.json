@@ -1,0 +1,14 @@
+{
+  "repo_id": "lerobot/aloha_static_coffee",
+  "revision": "37fdb4dc78dc8a3b3f1fc44f7c7c60a207d18937",
+  "episode_index": 0,
+  "sample_rate_hz": 50,
+  "cameras": [
+    "cam_high",
+    "cam_left_wrist",
+    "cam_right_wrist"
+  ],
+  "task_label": "Make coffee",
+  "license": "MIT",
+  "source_url": "https://huggingface.co/datasets/lerobot/aloha_static_coffee"
+}

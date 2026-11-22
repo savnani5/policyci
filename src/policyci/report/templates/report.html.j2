@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>policyci — {{ title }}</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e7ecf1;
+      --muted: #8b9aab;
+      --pass: #3dd68c;
+      --fail: #f07178;
+      --fixed: #59c2ff;
+      --line: #2a3542;
+      --accent: #e6b450;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1c2a3a, var(--bg));
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem;
+    }
+    h1, h2, h3 { font-family: "IBM Plex Mono", "SF Mono", monospace; font-weight: 600; }
+    h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
+    h2 { font-size: 1.1rem; margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: 0.4rem; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .banner {
+      display: inline-block;
+      padding: 0.35rem 0.85rem;
+      border-radius: 4px;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin: 1rem 0;
+    }
+    .banner.pass { background: color-mix(in srgb, var(--pass) 20%, transparent); color: var(--pass); border: 1px solid var(--pass); }
+    .banner.fail, .banner.block { background: color-mix(in srgb, var(--fail) 20%, transparent); color: var(--fail); border: 1px solid var(--fail); }
+    .banner.no_verdict { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); border: 1px solid var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+    th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    tr:hover td { background: color-mix(in srgb, var(--panel) 80%, transparent); }
+    .status-regressed { color: var(--fail); font-weight: 600; }
+    .status-fixed { color: var(--fixed); font-weight: 600; }
+    .status-unchanged { color: var(--muted); }
+    .status-not_evaluated { color: var(--accent); font-weight: 600; }
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+    .meta .card { background: var(--panel); padding: 0.85rem 1rem; border-radius: 6px; border: 1px solid var(--line); }
+    .meta .label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .meta .value { font-family: "IBM Plex Mono", monospace; font-size: 1.05rem; margin-top: 0.2rem; }
+    .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .videos figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .videos video { width: 100%; display: block; background: #000; }
+    .videos figcaption { padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--muted); }
+    .curve { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; white-space: pre; background: var(--panel); padding: 1rem; border-radius: 6px; border: 1px solid var(--line); overflow-x: auto; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>policyci</h1>
+    <p class="muted">{{ title }}</p>
+    {% if verdict %}
+    <div class="banner {{ verdict }}">{{ verdict | upper }}{% if summary %} — {{ summary }}{% endif %}</div>
+    {% endif %}
+  </header>
+
+  <section class="meta">
+    {% for item in meta %}
+    <div class="card">
+      <div class="label">{{ item.label }}</div>
+      <div class="value">{{ item.value }}</div>
+    </div>
+    {% endfor %}
+  </section>
+
+  {% if task_rows %}
+  <h2>Per-task diff</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Suite</th>
+        <th>Status</th>
+        <th>v1 %</th>
+        <th>v2 %</th>
+        <th>Δ pp</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in task_rows %}
+      <tr>
+        <td>{{ row.task }}</td>
+        <td>{{ row.suite }}</td>
+        <td class="status-{{ row.status }}">{{ row.status }}</td>
+        <td>{{ row.v1 }}</td>
+        <td>{{ row.v2 }}</td>
+        <td>{{ row.delta }}</td>
+        <td>{{ row.reason }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if run_tasks %}
+  <h2>Per-task results</h2>
+  <table>
+    <thead>
+      <tr><th>Task</th><th>Suite</th><th>Episodes</th><th>Success %</th><th>Axis</th><th>Level</th></tr>
+    </thead>
+    <tbody>
+      {% for t in run_tasks %}
+      <tr>
+        <td>{{ t.task }}</td>
+        <td>{{ t.suite }}</td>
+        <td>{{ t.n_episodes }}</td>
+        <td>{{ "%.1f"|format(t.pc_success) }}</td>
+        <td>{{ t.perturbation_axis or "nominal" }}</td>
+        <td>{{ t.perturbation_level }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if profiles %}
+  <h2>Robustness profiles</h2>
+  {% for p in profiles %}
+  <h3>{{ p.axis }}{% if p.task %} — {{ p.task }}{% else %} — overall{% endif %}</h3>
+  <p class="muted">
+    holds until L{{ p.holds_until if p.holds_until is not none else "—" }},
+    breaks at L{{ p.breaks_at if p.breaks_at is not none else "—" }}
+    (threshold {{ p.threshold_pc }}%)
+  </p>
+  <div class="curve">{% for pt in p.points %}L{{ pt.level }}: {{ "%.1f"|format(pt.pc_success) }}% ({{ pt.n_successes }}/{{ pt.n_episodes }})
+{% endfor %}</div>
+  {% endfor %}
+  {% endif %}
+
+  {% if clusters %}
+  <h2>Failure clusters</h2>
+  <table>
+    <thead>
+      <tr><th>Cluster</th><th>Failures</th><th>Axis</th><th>Task</th><th>Level</th></tr>
+    </thead>
+    <tbody>
+      {% for c in clusters %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.n_failures }}</td>
+        <td>{{ c.axis }}</td>
+        <td>{{ c.task }}</td>
+        <td>{{ c.level }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if videos %}
+  <h2>Episode videos</h2>
+  <div class="videos">
+    {% for v in videos %}
+    <figure>
+      <video controls preload="metadata" src="{{ v.src }}"></video>
+      <figcaption>{{ v.caption }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <footer class="muted" style="margin-top: 3rem;">
+    Generated by policyci · GPU-hours: {{ gpu_hours }}
+  </footer>
+</body>
+</html>

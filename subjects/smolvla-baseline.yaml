@@ -1,0 +1,5 @@
+id: smolvla-baseline
+checkpoint: HuggingFaceVLA/smolvla_libero
+config:
+  n_action_steps: 10
+  batch_size: 1

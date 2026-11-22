@@ -1,0 +1,27 @@
+version: 1
+name: ros2-twist-replay
+
+runner:
+  type: ros2_replay
+  adapter: policyci.examples.ros2_replay.adapter:TwistReplayAdapter
+
+execution:
+  readiness_timeout_s: 15
+  playback_timeout_s: 60
+
+gate:
+  metric: within_tolerance
+  mode: require_value
+  expect: true
+  min_valid_repeats: 3
+
+cases:
+  - id: stop_command_regression
+    bag: ../examples/ros2_replay/fixtures/stop_drive_stop.mcap
+    judge:
+      tolerance: 0.05
+    repeats: 3
+    required_topics:
+      - /vehicle/cmd_vel
+    capture_topics:
+      - /user/cmd_vel

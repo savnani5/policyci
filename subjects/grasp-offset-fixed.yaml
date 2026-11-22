@@ -1,0 +1,4 @@
+id: pick-place-offset-fixed
+code_sha: mujoco-pick-place-demo-v2
+config:
+  action_frame_offset_m: [0.0, 0.0, 0.0]

@@ -1,0 +1,4 @@
+id: twist-known-bad
+config:
+  gain: 1.0
+  bias: 0.4

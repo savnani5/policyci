@@ -1,0 +1,16 @@
+name: libero_object_robustness
+suite: libero_object
+task_ids: [0]
+seeds: [1000, 1001]
+n_episodes: 2
+axes:
+  - name: instruction_rephrase
+    levels: [1, 2, 3]
+    instructions_by_task:
+      0:
+        1: "pick up the alphabet soup and place it in the basket"
+        2: "grab the soup can and put it into the basket"
+        3: "move the cylindrical soup container from the table into the woven basket"
+  - name: object_pose
+    levels: [1, 2, 3]
+    magnitude_cm: 2.0

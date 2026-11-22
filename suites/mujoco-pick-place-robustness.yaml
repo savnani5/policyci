@@ -1,0 +1,25 @@
+version: 1
+name: mujoco-pick-place-perturbation-robustness
+runner:
+  type: mujoco
+execution:
+  episodes: 1
+  seeds: [1000]
+gate:
+  metric: placement_success
+  mode: require_value
+  expect: true
+  min_valid_repeats: 1
+cases:
+  - id: nominal_center
+    object_position_offset_m: [0.0, 0.0, 0.0]
+    judge:
+      placement_hold_duration_s: 0.5
+  - id: object_right_5cm
+    object_position_offset_m: [0.05, 0.0, 0.0]
+    judge:
+      placement_hold_duration_s: 0.5
+  - id: perception_bias_5cm
+    object_observation_bias_m: [0.05, 0.0, 0.0]
+    judge:
+      placement_hold_duration_s: 0.5

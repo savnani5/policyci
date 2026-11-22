@@ -1,0 +1,4 @@
+id: aloha-action-baseline
+config:
+  gripper_delay_messages: 0
+

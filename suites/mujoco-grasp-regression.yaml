@@ -1,0 +1,16 @@
+version: 1
+name: mujoco-pick-place-regression
+runner:
+  type: mujoco
+execution:
+  episodes: 1
+  seeds: [1000]
+gate:
+  metric: placement_success
+  mode: require_value
+  expect: true
+  min_valid_repeats: 1
+cases:
+  - id: pick_place_offset
+    judge:
+      placement_hold_duration_s: 0.5
