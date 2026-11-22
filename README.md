@@ -4,6 +4,10 @@ CI for robot policies and controllers. Turn simulator scenarios and recorded rep
 
 Two rules shape the design: execution validity is checked before behavior, and a missing or incomparable result is never green.
 
+[![MuJoCo robustness gate in Rerun](docs/assets/demo1-mujoco-robustness.gif)](https://robolens.co/demo1)
+
+Interactive Rerun recordings for both headline demos (closed-loop MuJoCo rollout and open-loop ALOHA ROS replay) are live at **[robolens.co/demo1](https://robolens.co/demo1)**.
+
 ## What it does
 
 - **Release check** (`robolens check`): baseline vs candidate across the cases in a suite. Writes `runs/<check_id>/result.json` and `evidence.html`.
@@ -67,6 +71,8 @@ Converts a pinned real LeRobot episode (`lerobot/aloha_static_coffee`, three cam
 ```
 
 Expected output: baseline `PASS`, candidate `FAIL`, gate `BLOCK`. Rerun shows the three synchronized cameras, recorded joint effort, reference/baseline/candidate gripper commands, error against tolerance, and the first violation. This is open-loop component regression evidence, not a closed-loop prediction of what the robot would do. Details in [`examples/aloha_replay/`](examples/aloha_replay/README.md).
+
+[![ALOHA replay gate in Rerun](docs/assets/demo1-aloha-replay.png)](https://robolens.co/demo1)
 
 ### 3. ROS 2 Twist replay example (Docker)
 
@@ -154,7 +160,7 @@ subjects/          subject YAML specs (baseline / candidate / controller)
 examples/          Dockerfiles, fixtures, and READMEs for the containerized demos
 scripts/           demo wrappers, fixture preparation, offline walkthrough
 tests/             unit tests; tests/integration needs ROS 2 or MuJoCo and skips otherwise
-docs/              check contract
+docs/              check contract and README media
 runs/              local artifacts (gitignored)
 ```
 
@@ -170,3 +176,7 @@ The unit suite needs no GPU, Modal, Docker, or ROS 2. Integration tests under `t
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): release-check flow, evaluation core, module map, runner contract, and future work.
 - [`docs/robolens-check.md`](docs/robolens-check.md): suite, subject, and result file contracts.
+
+## License
+
+[MIT](LICENSE)
